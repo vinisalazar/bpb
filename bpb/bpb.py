@@ -71,8 +71,8 @@ def set_meeting(update, context):
 
 def clear_meetings(update, context):
     try:
-        delattr(context.bot.next_meeting)
-        delattr(context.bot.next_meetings)
+        delattr(context.bot, 'next_meeting')
+        delattr(context.bot, 'next_meetings')
         message = "Limpei a agenda de reuniões." + please_schedule
     except AttributeError:
         message = "Nenhuma reunião agendada."
