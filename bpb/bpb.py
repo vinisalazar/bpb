@@ -20,6 +20,7 @@ locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 
 # Handlers
 def start(update, context):
+
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Olá, sou o BPB!\n O bot de Boas práticas do Código Bonito.",
@@ -27,24 +28,33 @@ def start(update, context):
 
 
 def get_meeting(update, context):
+
     try:
         datetime_obj = getattr(context.bot, "next_meeting")
         parsed_date, _ = parse_date(datetime_obj)
         message = f"A próxima reunião está marcada para:\n {parsed_date}.\n".lower().capitalize()
+
         try:
+
             next_meetings = getattr(context.bot, "next_meetings")
             message += "Esse horário irá se repetir pelas próximas 4 semanas:\n"
             message += " \n".join(i[0] for i in next_meetings)
+
         except AttributeError:
+
             pass
+
     except Exception as _:
+
         message = "Nenhuma reunião marcada." + please_schedule
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
 def set_meeting(update, context):
+
     try:
+
         # Get message meeting and following ones
         parsed_date, datetime_obj = parse_date(context.args)
         next_meetings, interval = [
@@ -61,7 +71,9 @@ def set_meeting(update, context):
         message = f"Reunião marcada para:\n {parsed_date}.\n".lower().capitalize()
         message += "Esse horário irá se repetir pelas próximas 4 semanas:\n"
         message += " \n".join(i[0] for i in context.bot.next_meetings)
+
     except Exception as e:
+
         message = (
             "Não consegui marcar a reunião. Por favor verifique a mensagem submetida:\n"
         )
@@ -76,11 +88,15 @@ def set_meeting(update, context):
 
 
 def clear_meetings(update, context):
+
     try:
+
         delattr(context.bot, "next_meeting")
         delattr(context.bot, "next_meetings")
         message = "Limpei a agenda de reuniões." + please_schedule
+
     except AttributeError:
+
         message = "Nenhuma reunião agendada."
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
