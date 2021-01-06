@@ -1,5 +1,6 @@
 import locale
 import logging
+import os
 from telegram import ext
 from datetime import datetime, timedelta
 from dateutil import parser as dateutil_parser
@@ -71,8 +72,8 @@ def set_meeting(update, context):
 
 def clear_meetings(update, context):
     try:
-        delattr(context.bot, 'next_meeting')
-        delattr(context.bot, 'next_meetings')
+        delattr(context.bot, "next_meeting")
+        delattr(context.bot, "next_meetings")
         message = "Limpei a agenda de reuniões." + please_schedule
     except AttributeError:
         message = "Nenhuma reunião agendada."
@@ -92,15 +93,18 @@ def main():
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         level=logging.INFO,
     )
-    locale.setlocale(locale.LC_TIME, "pt_BR")
-    with open("token.txt") as f:
-        token = f.read().strip()
+    locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 
     # Defining bot
-    updater = ext.Updater(token=token)
+    updater = ext.Updater(token=os.environ.get("TEL_TOKEN"))
     dispatcher = updater.dispatcher
 
-    for handler in (start_handler, set_meeting_handler, get_meeting_handler, clear_meetings_handler):
+    for handler in (
+        start_handler,
+        set_meeting_handler,
+        get_meeting_handler,
+        clear_meetings_handler,
+    ):
         dispatcher.add_handler(handler)
 
     updater.start_polling()
