@@ -1,28 +1,21 @@
 import locale
 import logging
 import os
+from datetime import timedelta
+
 from telegram import ext
-from datetime import datetime, timedelta
-from dateutil import parser as dateutil_parser
 
-
-# Helper functions and variables
-def parse_date(date_args):
-    if isinstance(date_args, (list, tuple)):
-        date_args = " ".join(date_args)
-    elif isinstance(date_args, datetime):
-        date_args = str(date_args)
-    datetime_obj = dateutil_parser.parse(date_args)
-    parsed_date = datetime_obj.strftime("%A %Hh, %d %b %Y")
-    return parsed_date, datetime_obj
-
+from utils import parse_date
 
 please_schedule = " Por favor marque um horário com o comando /setmeeting."
 
 
 # Handlers
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Olá, sou o BPB!")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="Olá, sou o BPB!\n O bot de Boas práticas do Código Bonito.",
+    )
 
 
 def get_meeting(update, context):
@@ -49,7 +42,7 @@ def set_meeting(update, context):
         next_meetings, interval = [
             (parsed_date, datetime_obj),
         ], 7
-        for i in range(3):
+        for _ in range(3):
             next_meetings.append(parse_date(datetime_obj + timedelta(days=interval)))
             interval += interval
 
@@ -62,9 +55,13 @@ def set_meeting(update, context):
         message += " \n".join(i[0] for i in context.bot.next_meetings)
     except Exception as e:
         message = (
-            "Não consegui marcar a reunião. Por favor verifique a mensagem submetida.\n"
+            "Não consegui marcar a reunião. Por favor verifique a mensagem submetida:\n"
         )
-        message += f"'{' '.join(context.args)}'"
+        message += (
+            f"'{' '.join(context.args)}'"
+            if len(context.args) > 1
+            else "Ué, você não enviou nada!"
+        )
         print(e)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
