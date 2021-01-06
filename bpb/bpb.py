@@ -9,6 +9,14 @@ from utils import parse_date
 
 please_schedule = " Por favor marque um horário com o comando /setmeeting."
 
+# Configuration
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+)
+logger = logging.getLogger(__name__)
+
+locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 
 # Handlers
 def start(update, context):
@@ -62,7 +70,7 @@ def set_meeting(update, context):
             if len(context.args) > 1
             else "Ué, você não enviou nada!"
         )
-        print(e)
+        logger.error(e)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
@@ -85,12 +93,6 @@ clear_meetings_handler = ext.CommandHandler("clear", clear_meetings)
 
 
 def main():
-    # Configuration
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        level=logging.INFO,
-    )
-    locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 
     # Defining bot
     updater = ext.Updater(token=os.environ.get("TEL_TOKEN"))
