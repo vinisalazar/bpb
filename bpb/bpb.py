@@ -112,7 +112,24 @@ def links(update, context):
     )
 
 
+def welcome(update, context):
+
+    new_member = update.message.new_chat_members[0]
+
+    user_text = f"[{new_member.full_name}](tg://user?id={new_member.id})"
+
+    welcome_message = (
+        f"Olá, {user_text}! Esse é o grupo do Código Bonito, "
+        "um grupo de discussões sobre programação, "
+        "bioinformática e ciência aberta. "
+        "Se apresente e conte como encontrou o grupo!"
+    )
+
+    update.message.reply_text(welcome_message, parse_mode="Markdown")
+
+
 handlers = [
+    ext.MessageHandler(ext.Filters.status_update.new_chat_members, welcome),
     ext.CommandHandler("start", start),
     ext.CommandHandler("setmeeting", set_meeting),
     ext.CommandHandler("getmeeting", get_meeting),
