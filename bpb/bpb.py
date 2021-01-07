@@ -102,10 +102,21 @@ def clear_meetings(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
+def links(update, context):
+
+    with open("bpb/links_importantes.html", "r") as link_file:
+        links_importantes = link_file.read()
+
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text=links_importantes, parse_mode="HTML"
+    )
+
+
 start_handler = ext.CommandHandler("start", start)
 set_meeting_handler = ext.CommandHandler("setmeeting", set_meeting)
 get_meeting_handler = ext.CommandHandler("getmeeting", get_meeting)
 clear_meetings_handler = ext.CommandHandler("clear", clear_meetings)
+links_handler = ext.CommandHandler("links", links)
 
 
 def main():
@@ -119,6 +130,7 @@ def main():
         set_meeting_handler,
         get_meeting_handler,
         clear_meetings_handler,
+        links_handler,
     ):
         dispatcher.add_handler(handler)
 
