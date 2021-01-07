@@ -112,11 +112,13 @@ def links(update, context):
     )
 
 
-start_handler = ext.CommandHandler("start", start)
-set_meeting_handler = ext.CommandHandler("setmeeting", set_meeting)
-get_meeting_handler = ext.CommandHandler("getmeeting", get_meeting)
-clear_meetings_handler = ext.CommandHandler("clear", clear_meetings)
-links_handler = ext.CommandHandler("links", links)
+handlers = [
+    ext.CommandHandler("start", start),
+    ext.CommandHandler("setmeeting", set_meeting),
+    ext.CommandHandler("getmeeting", get_meeting),
+    ext.CommandHandler("clear", clear_meetings),
+    ext.CommandHandler("links", links),
+]
 
 
 def main():
@@ -125,13 +127,7 @@ def main():
     updater = ext.Updater(token=os.environ.get("TEL_TOKEN"))
     dispatcher = updater.dispatcher
 
-    for handler in (
-        start_handler,
-        set_meeting_handler,
-        get_meeting_handler,
-        clear_meetings_handler,
-        links_handler,
-    ):
+    for handler in handlers:
         dispatcher.add_handler(handler)
 
     updater.start_polling()
