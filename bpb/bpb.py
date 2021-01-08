@@ -102,10 +102,40 @@ def clear_meetings(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
-start_handler = ext.CommandHandler("start", start)
-set_meeting_handler = ext.CommandHandler("setmeeting", set_meeting)
-get_meeting_handler = ext.CommandHandler("getmeeting", get_meeting)
-clear_meetings_handler = ext.CommandHandler("clear", clear_meetings)
+def links(update, context):
+
+    with open("bpb/links_importantes.html", "r") as link_file:
+        links_importantes = link_file.read()
+
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text=links_importantes, parse_mode="HTML"
+    )
+
+
+def welcome(update, context):
+
+    new_member = update.message.new_chat_members[0]
+
+    user_text = f"[{new_member.full_name}](tg://user?id={new_member.id})"
+
+    welcome_message = (
+        f"Olá, {user_text}! Esse é o grupo do Código Bonito, "
+        "um grupo de discussões sobre programação, "
+        "bioinformática e ciência aberta. "
+        "Se apresente e conte como encontrou o grupo!"
+    )
+
+    update.message.reply_text(welcome_message, parse_mode="Markdown")
+
+
+handlers = [
+    ext.MessageHandler(ext.Filters.status_update.new_chat_members, welcome),
+    ext.CommandHandler("start", start),
+    ext.CommandHandler("setmeeting", set_meeting),
+    ext.CommandHandler("getmeeting", get_meeting),
+    ext.CommandHandler("clear", clear_meetings),
+    ext.CommandHandler("links", links),
+]
 
 
 def main():
@@ -114,15 +144,12 @@ def main():
     updater = ext.Updater(token=os.environ.get("TEL_TOKEN"))
     dispatcher = updater.dispatcher
 
-    for handler in (
-        start_handler,
-        set_meeting_handler,
-        get_meeting_handler,
-        clear_meetings_handler,
-    ):
+    for handler in handlers:
         dispatcher.add_handler(handler)
 
     updater.start_polling()
+
+    updater.idle()
 
 
 if __name__ == "__main__":
