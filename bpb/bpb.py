@@ -3,11 +3,10 @@ import logging
 import os
 from datetime import timedelta
 
-from telegram import ext
+from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 
+from messages import PLEASE_SCHEDULE, SEM_REUNIAO, START, WELCOME
 from utils import parse_date
-
-please_schedule = " Por favor marque um horário com o comando /setmeeting."
 
 # Configuration
 logging.basicConfig(
@@ -23,7 +22,7 @@ def start(update, context):
 
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="Olá, sou o BPB!\n O bot de Boas práticas do Código Bonito.",
+        text=START,
     )
 
 
@@ -31,6 +30,7 @@ def get_meeting(update, context):
 
     try:
         datetime_obj = getattr(context.bot, "next_meeting")
+
         parsed_date, _ = parse_date(datetime_obj)
         message = f"A próxima reunião está marcada para:\n {parsed_date}.\n".lower().capitalize()
 
@@ -46,7 +46,7 @@ def get_meeting(update, context):
 
     except Exception as _:
 
-        message = "Nenhuma reunião marcada." + please_schedule
+        message = SEM_REUNIAO + PLEASE_SCHEDULE
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
@@ -82,6 +82,7 @@ def set_meeting(update, context):
             if len(context.args) > 1
             else "Ué, você não enviou nada!"
         )
+
         logger.error(e)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
@@ -93,11 +94,11 @@ def clear_meetings(update, context):
 
         delattr(context.bot, "next_meeting")
         delattr(context.bot, "next_meetings")
-        message = "Limpei a agenda de reuniões." + please_schedule
+        message = "Limpei a agenda de reuniões." + PLEASE_SCHEDULE
 
     except AttributeError:
 
-        message = "Nenhuma reunião agendada."
+        message = SEM_REUNIAO
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
@@ -118,30 +119,25 @@ def welcome(update, context):
 
     user_text = f"[{new_member.full_name}](tg://user?id={new_member.id})"
 
-    welcome_message = (
-        f"Olá, {user_text}! Esse é o grupo do Código Bonito, "
-        "um grupo de discussões sobre programação, "
-        "bioinformática e ciência aberta. "
-        "Se apresente e conte como encontrou o grupo!"
-    )
+    welcome_message = WELCOME.format(user_text=user_text)
 
     update.message.reply_text(welcome_message, parse_mode="Markdown")
 
 
 handlers = [
-    ext.MessageHandler(ext.Filters.status_update.new_chat_members, welcome),
-    ext.CommandHandler("start", start),
-    ext.CommandHandler("setmeeting", set_meeting),
-    ext.CommandHandler("getmeeting", get_meeting),
-    ext.CommandHandler("clear", clear_meetings),
-    ext.CommandHandler("links", links),
+    MessageHandler(Filters.status_update.new_chat_members, welcome),
+    CommandHandler("start", start),
+    CommandHandler("setmeeting", set_meeting),
+    CommandHandler("getmeeting", get_meeting),
+    CommandHandler("clear", clear_meetings),
+    CommandHandler("links", links),
 ]
 
 
 def main():
 
     # Defining bot
-    updater = ext.Updater(token=os.environ.get("TEL_TOKEN"))
+    updater = Updater(token=os.environ.get("TEL_TOKEN"))
     dispatcher = updater.dispatcher
 
     for handler in handlers:
