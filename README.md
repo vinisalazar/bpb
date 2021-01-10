@@ -33,5 +33,5 @@ export TEL_TOKEN="CHAVE_DA_API_AQUI"
 E então pode iniciar o processo:
 
 ```sh
-python bpb/bpb.py
+python run.py
 ```
