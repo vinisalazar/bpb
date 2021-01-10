@@ -1,11 +1,10 @@
 import locale
 import logging
-from datetime import timedelta
 
 from telegram.ext import CommandHandler, Filters, MessageHandler
 
 from .messages import PLEASE_SCHEDULE, SEM_REUNIAO, START, WELCOME
-from .utils import parse_date
+from .utils import get_meeting_range, parse_date
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -54,14 +53,7 @@ def set_meeting(update, context):
 
     try:
 
-        # Get message meeting and following ones
-        parsed_date, datetime_obj = parse_date(context.args)
-        next_meetings, interval = [
-            (parsed_date, datetime_obj),
-        ], 7
-        for _ in range(3):
-            next_meetings.append(parse_date(datetime_obj + timedelta(days=interval)))
-            interval += interval
+        parsed_date, datetime_obj, next_meetings = get_meeting_range(context.args)
 
         # Add attributes to bot
         context.bot.next_meeting = datetime_obj
@@ -73,9 +65,7 @@ def set_meeting(update, context):
 
     except Exception as e:
 
-        message = (
-            "Não consegui marcar a reunião. Por favor verifique a mensagem submetida:\n"
-        )
+        message = "Não consegui marcar a reunião. Por favor verifique a mensagem submetida:\n\n"
         message += (
             f"'{' '.join(context.args)}'"
             if len(context.args) > 1
