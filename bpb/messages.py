@@ -10,3 +10,20 @@ WELCOME = (
 )
 
 SEM_REUNIAO = "Nenhuma reunião agendada."
+
+MARCADA_PARA = "A próxima reunião está marcada para:\n {parsed_date}.\n\n"
+
+REPETIRA = "Esse horário irá se repetir pelas próximas 4 semanas:\n"
+
+CLEAR = "Limpei a agenda de reuniões."
+
+ERRO_AO_MARCAR = (
+    "Não consegui marcar a reunião. Por favor verifique a mensagem submetida:\n\n"
+)
+
+SEM_VALOR = "Ué, você não enviou nada!"
+
+LINKS_IMPORTANTES = """
+[Site do grupo](https://codigobonito.github.io)
+[Atas anteriores](https://docs.google.com/document/d/1w_w4O1lv5ZZwpw51G7ATd00hjdAGpkts6TLkd-Uvacc)
+"""

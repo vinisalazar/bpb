@@ -3,7 +3,18 @@ import logging
 
 from telegram.ext import CommandHandler, Filters, MessageHandler
 
-from .messages import PLEASE_SCHEDULE, SEM_REUNIAO, START, WELCOME
+from .messages import (
+    CLEAR,
+    ERRO_AO_MARCAR,
+    MARCADA_PARA,
+    PLEASE_SCHEDULE,
+    REPETIRA,
+    SEM_REUNIAO,
+    SEM_VALOR,
+    START,
+    WELCOME,
+    LINKS_IMPORTANTES,
+)
 from .utils import get_meeting_range, parse_date
 
 logging.basicConfig(
@@ -29,13 +40,12 @@ def get_meeting(update, context):
         datetime_obj = getattr(context.bot, "next_meeting")
 
         parsed_date, _ = parse_date(datetime_obj)
-        message = f"A próxima reunião está marcada para:\n {parsed_date}.\n".lower().capitalize()
+        message = MARCADA_PARA.format(parsed_date=parsed_date).lower().capitalize()
 
         try:
 
             next_meetings = getattr(context.bot, "next_meetings")
-            message += "Esse horário irá se repetir pelas próximas 4 semanas:\n"
-            message += " \n".join(i[0] for i in next_meetings)
+            message += REPETIRA + " \n".join(i[0] for i in next_meetings)
 
         except AttributeError as e:
 
@@ -59,18 +69,15 @@ def set_meeting(update, context):
         context.bot.next_meeting = datetime_obj
         context.bot.next_meetings = next_meetings
 
-        message = f"Reunião marcada para:\n {parsed_date}.\n".lower().capitalize()
-        message += "Esse horário irá se repetir pelas próximas 4 semanas:\n"
+        message = (
+            MARCADA_PARA.format(parsed_date=parsed_date).lower().capitalize() + REPETIRA
+        )
         message += " \n".join(i[0] for i in context.bot.next_meetings)
 
     except Exception as e:
 
-        message = "Não consegui marcar a reunião. Por favor verifique a mensagem submetida:\n\n"
-        message += (
-            f"'{' '.join(context.args)}'"
-            if len(context.args) > 1
-            else "Ué, você não enviou nada!"
-        )
+        message = ERRO_AO_MARCAR
+        message += f"'{' '.join(context.args)}'" if len(context.args) > 1 else SEM_VALOR
 
         logger.error(e)
 
@@ -83,7 +90,7 @@ def clear_meetings(update, context):
 
         delattr(context.bot, "next_meeting")
         delattr(context.bot, "next_meetings")
-        message = "Limpei a agenda de reuniões." + PLEASE_SCHEDULE
+        message = CLEAR + PLEASE_SCHEDULE
 
     except AttributeError:
 
@@ -94,11 +101,8 @@ def clear_meetings(update, context):
 
 def links(update, context):
 
-    with open("bpb/links_importantes.html", "r") as link_file:
-        links_importantes = link_file.read()
-
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text=links_importantes, parse_mode="HTML"
+        chat_id=update.effective_chat.id, text=LINKS_IMPORTANTES, parse_mode="Markdown"
     )
 
 
